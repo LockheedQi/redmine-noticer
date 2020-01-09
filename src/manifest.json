@@ -1,11 +1,11 @@
 {
   "name": "redmine-noticer",
-  "description": "A Vue.js web extension",
-  "version": null,
+  "description": "This extension notice you the new message of redmine.",
+  "version": "1.0.0",
   "manifest_version": 2,
   "icons": {
-    "48": "icons/icon_48.png",
-    "128": "icons/icon_128.png"
+    "48": "icons/logo.png",
+    "128": "icons/logo.png"
   },
   "browser_action": {
     "default_title": "redmine-noticer",
