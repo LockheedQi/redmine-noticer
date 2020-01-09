@@ -1,17 +1,19 @@
 <template>
-  <div>
-    <p>Hello world!</p>
+  <div class="content">
+    
   </div>
 </template>
 
 <script>
 export default {
-  name: "App",
+  name: "App"
 };
 </script>
 
-<style scoped>
-p {
-  font-size: 20px;
+<style lang="scss" scoped>
+.content {
+  width: 700px;
+  height: 500px;
+  background-color: red;
 }
 </style>
