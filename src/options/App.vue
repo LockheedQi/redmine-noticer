@@ -6,7 +6,8 @@
         <div class="title">Redmine URL</div>
         <el-input
           placeholder="请输入Redmine地址"
-          v-model="redmineUrl">
+          v-model="redmineUrl"
+          clearable>
         </el-input>
       </div>
       <div class="url flex-center">
