@@ -1,0 +1,22 @@
+.popup-content .el-table__header-wrapper th .cell{
+  text-align: center;
+  max-height: 54px;
+}
+.popup-content .el-table__body-wrapper td{
+  text-align: center;
+}
+.popup-content .el-table__body-wrapper .cell{
+  height: 54px;
+  line-height: 54px;
+}
+.popup-content .el-table__body td{
+  padding: 0;
+}
+.popup-content .description .cell{
+  line-height: 18px;
+  /* text-align: center; */
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
