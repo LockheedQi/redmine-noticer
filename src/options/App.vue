@@ -4,19 +4,13 @@
       <img class="logo" src="../icons/logo.png" alt />
       <div class="url flex-center">
         <div class="title">Redmine URL</div>
-        <el-input
-          placeholder="请输入Redmine地址"
-          v-model="redmineUrl"
-          clearable>
-        </el-input>
+        <el-input placeholder="请输入Redmine地址" v-model="redmineUrl" clearable></el-input>
       </div>
       <div class="url flex-center">
         <div class="title">API Key</div>
-        <el-input
-          placeholder="请输入API access key"
-          v-model="accessKey">
-        </el-input>
+        <el-input placeholder="请输入API access key" v-model="accessKey"></el-input>
       </div>
+      <el-button class="next-step" type="primary">下一步</el-button>
     </div>
   </div>
 </template>
@@ -24,11 +18,11 @@
 <script>
 export default {
   name: "App",
-  data(){
-    return{
-      redmineUrl:'',
-      accessKey:''
-    }
+  data() {
+    return {
+      redmineUrl: "",
+      accessKey: ""
+    };
   }
 };
 </script>
@@ -55,10 +49,10 @@ export default {
       margin-top: 20px;
     }
 
-    .url{
+    .url {
       margin-top: 24px;
-      
-      .title{
+
+      .title {
         width: 100px;
         height: 40px;
         line-height: 40px;
@@ -68,11 +62,15 @@ export default {
         text-align: right;
         font-family: SourceHanSansSC-regular;
       }
-      .el-input{
+      .el-input {
         margin-left: 28px;
         width: 313px;
         // border: 1px solid rgba(220, 223, 230, 1);
       }
+    }
+    .next-step {
+      margin-top: 20px;
+      width: 120px;
     }
   }
 }
