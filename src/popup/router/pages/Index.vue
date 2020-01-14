@@ -1,6 +1,6 @@
 <template>
   <div class="popup-content">
-    <el-table :data="tableData" style="width: 100%" :cell-class-name="cellClass">
+    <el-table v-if="this.redmineUrl && this.accessKey" :data="tableData" style="width: 100%" :cell-class-name="cellClass">
       <el-table-column prop="id" label="#" width="66"></el-table-column>
       <el-table-column prop="tracker.name" label="跟踪" width="60">
         <template slot-scope="scope">
@@ -26,12 +26,17 @@
       <el-table-column prop="subject" label="主题"></el-table-column>
       <el-table-column prop="updated_on" :formatter="dateFormatter" label="更新于" width="98"></el-table-column>
     </el-table>
+    <div v-else class="options-content">
+      <options @getSettings='getSettings'></options>
+    </div>
+    
   </div>
 </template>
 
 <script>
 import { log } from "util";
 import moment from "moment";
+import options from '../../../options/App'
 export default {
   data() {
     return {
@@ -40,21 +45,26 @@ export default {
       tableData: []
     };
   },
+  components: {
+    options,
+  },
   mounted() {
-    chrome.storage.sync.get({ redmineUrl: "", accessKey: "" }, (items) => {
-      if (items.redmineUrl && items.accessKey) {
-        this.redmineUrl = items.redmineUrl;
-        this.accessKey = items.accessKey;
-        
-        this.getIssues();
-      } else {
-        console.log("请配置RedmineUrl和accessKey");
-      }
-    });
+    this.getSettings()
   },
   methods: {
+    getSettings(){
+      chrome.storage.sync.get({ redmineUrl: "", accessKey: "" }, (items) => {
+        if (items.redmineUrl && items.accessKey) {
+          this.redmineUrl = items.redmineUrl;
+          this.accessKey = items.accessKey;
+          
+          this.getIssues();
+        } else {
+          console.log("请配置RedmineUrl和accessKey");
+        }
+      });
+    },
     getIssues() {
-      console.log(this.redmineUrl + this.accessKey)
       this.$api({
           method: 'get',
           url: this.redmineUrl + '/issues.json',
@@ -93,6 +103,11 @@ export default {
       width: 20px;
       height: 20px;
     }
+  }
+  .options-content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 </style>

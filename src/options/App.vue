@@ -27,9 +27,11 @@ export default {
   methods: {
     next() {
       // 保存数据
-      chrome.storage.sync.set({redmineUrl: this.redmineUrl,accessKey:this.accessKey}, function(){
+      chrome.storage.sync.set({redmineUrl: this.redmineUrl,accessKey:this.accessKey}, ()=>{
         // 保存成功
+        this.$emit('getSettings')
       });
+      
     }
   },
 };
