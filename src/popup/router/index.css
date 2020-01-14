@@ -12,7 +12,7 @@
 .popup-content .el-table__body td{
   padding: 0;
 }
-.popup-content .description .cell{
+.popup-content .subject .cell{
   line-height: 18px;
   display: flex;
   align-items: center;

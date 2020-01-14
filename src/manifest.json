@@ -20,5 +20,11 @@
   "options_ui": {
     "page": "options/options.html",
     "chrome_style": false
-  }
+  },
+  "permissions":[
+    "storage",
+    "webRequest",
+    "http://*/",
+    "https://*/"
+  ]
 }

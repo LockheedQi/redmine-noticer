@@ -10,7 +10,7 @@
         <div class="title">API Key</div>
         <el-input placeholder="请输入API access key" v-model="accessKey"></el-input>
       </div>
-      <el-button class="next-step" type="primary">下一步</el-button>
+      <el-button class="next-step" type="primary" @click="next">下一步</el-button>
     </div>
   </div>
 </template>
@@ -23,7 +23,15 @@ export default {
       redmineUrl: "",
       accessKey: ""
     };
-  }
+  },
+  methods: {
+    next() {
+      // 保存数据
+      chrome.storage.sync.set({redmineUrl: this.redmineUrl,accessKey:this.accessKey}, function(){
+        // 保存成功
+      });
+    }
+  },
 };
 </script>
 
