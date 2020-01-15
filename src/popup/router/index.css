@@ -15,7 +15,10 @@
 .popup-content .subject .cell{
   line-height: 18px;
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   flex-direction: column;
   justify-content: center;
+}
+.popup-content .text-left .cell{
+  text-align: left;
 }

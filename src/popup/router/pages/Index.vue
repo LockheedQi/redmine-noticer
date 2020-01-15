@@ -80,7 +80,7 @@ export default {
     },
     cellClass({ row, column, rowIndex, columnIndex }) {
       if (columnIndex == 4 || columnIndex == 5) {
-        return "subject";
+        return columnIndex == 4 ? "subject text-left" : "subject";
       }
     },
     dateFormatter(row, column, cellValue, index) {
