@@ -1,6 +1,6 @@
 <template>
   <div class="popup-content">
-    <el-table v-if="this.redmineUrl && this.accessKey" :data="tableData" style="width: 100%" :cell-class-name="cellClass">
+    <el-table v-if="this.redmineUrl && this.accessKey" v-loading="loading" element-loading-text="加载中" :data="tableData" style="width: 100%" :cell-class-name="cellClass">
       <el-table-column prop="id" label="#" width="66"></el-table-column>
       <el-table-column prop="tracker.name" label="跟踪" width="60">
         <template slot-scope="scope">
@@ -42,7 +42,8 @@ export default {
     return {
       redmineUrl: "",
       accessKey: "",
-      tableData: []
+      tableData: [],
+      loading: true
     };
   },
   components: {
@@ -72,9 +73,10 @@ export default {
             key: this.accessKey
           }
         }).then(res => {
-          console.log(res)
+          this.loading = false
           this.tableData = res.data.issues
         }).catch(err => {
+          this.loading = false
           console.log(err)
       })
     },
