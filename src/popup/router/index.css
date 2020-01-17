@@ -22,3 +22,7 @@
 .popup-content .text-left .cell{
   text-align: left;
 }
+.popup-content .el-table__expand-icon{
+  height: 100%;
+  margin-right: 3px;
+}
