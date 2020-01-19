@@ -1,6 +1,6 @@
 <template>
   <div class="popup-content">
-    <el-table v-if="this.redmineUrl && this.accessKey" ref="issuesTable" v-loading="loading" @row-click='selectRow' element-loading-text="加载中" :data="tableData" style="width: 100%" :cell-class-name="cellClass">
+    <el-table v-if="this.redmineUrl && this.accessKey" ref="issuesTable" v-loading="loading" @expand-change='expandChange' @row-click='selectRow' element-loading-text="加载中" :data="tableData" style="width: 100%" :cell-class-name="cellClass">
       <el-table-column prop="id" label="#" width="66"></el-table-column>
       <el-table-column prop="tracker.name" label="跟踪" width="60">
         <template slot-scope="scope">
@@ -37,14 +37,30 @@
               <img v-else class="issue-priority" src="../../../icons/high_priority.png" alt="">
               <span class="info-value">{{scope.row.priority.name}}</span>
               <template v-for="(item) in scope.row.custom_fields">
-                <span class="info-title" :key='item.id'>{{item.name}}:</span>
-                <span class="info-value" :key='item.id'>{{item.multiple ? item.value.join() : item.value}}</span>
+                <span class="info-title" :key='"info-title" + item.id'>{{item.name}}:</span>
+                <span class="info-value" :key='"info-value" + item.id'>{{item.multiple ? item.value.join() : item.value}}</span>
               </template>
             </div>
             <!-- issue描述 -->
             <div class="issue-description">
               <span class="info-title">描述:</span>
               <span class="info-description">{{scope.row.description}}</span>
+            </div>
+            <!-- 附件 -->
+            <div class="issue-attachments">
+              <span class="info-title">附件:</span>
+              <template v-if="scope.row.attachments">
+                <!-- <img v-for="(item,index) in scope.row.attachments" :key="index" :src="item.content_url" alt=""> -->
+                <div @mousewheel.prevent>
+                  <el-image 
+                    fit="contain"
+                    v-for="(item,index) in scope.row.attachments" :key="index"
+                    style="width: 100px; height: 100px"
+                    :src="item.content_url"
+                    :preview-src-list="scope.row.attachments.map(obj => {return obj.content_url})">
+                  </el-image>
+                </div>
+              </template>
             </div>
             <div class="issue-journals"></div>
           </div>
@@ -99,7 +115,10 @@ export default {
           }
         }).then(res => {
           this.loading = false
-          this.tableData = res.data.issues
+          this.tableData = res.data.issues.map(item => {
+            item.attachments = []
+            return item
+          })
         }).catch(err => {
           this.loading = false
           console.log(err)
@@ -116,13 +135,33 @@ export default {
     selectRow(row, column, event){
       this.$refs.issuesTable.toggleRowExpansion(row);
     },
+    expandChange(row,expandedRows){
+      // 展开row
+      if (expandedRows.indexOf(row) != -1){
+        this.getIssueDetail(row)
+      }
+    },
+    getIssueDetail(row){
+      this.$api({
+          method: 'get',
+          url: this.redmineUrl + '/issues/' + row.id + '.json',
+          params: {
+            key: this.accessKey,
+            include: 'attachments,journals'
+          }
+        }).then(res => {
+          row.attachments = res.data.issue.attachments
+        }).catch(err => {
+          console.log(err)
+      })
+    },
   }
 };
 </script>
 
 <style lang="scss" scoped>
 .popup-content {
-  width: 770px;
+  width: 760px;
   margin-bottom: 20px;
   .tracker-icon {
     display: flex;
@@ -139,11 +178,14 @@ export default {
     align-items: center;
     justify-content: center;
   }
-  .issue-info,.issue-description{
+  .expand-content{
+    padding-bottom: 20px;
+    background-color: #eef5f9;
+  }
+  .issue-info,.issue-description,.issue-attachments{
     display: flex;
     height: 30px;
     align-items: center;
-    background-color: #eef5f9;
     .issue-priority{
       width: 18px;
       margin-left: 2px;
@@ -168,6 +210,16 @@ export default {
     }
     .info-description{
       text-align: left;
+      margin-left: 5px;
+    }
+  }
+  .issue-attachments{
+    height: auto;
+    margin-top: 10px;
+    img{
+      // width: 100px;
+      height: auto;
+      margin-left: 10px;
     }
   }
 }
