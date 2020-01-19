@@ -25,3 +25,13 @@
   height: 54px;
   margin-right: 3px;
 }
+.popup-content .issue-journals .el-timeline{
+  padding-left: 15px;
+  padding-right: 10px;
+}
+.popup-content .issue-journals .el-timeline :last-child{
+  padding-bottom: 0;
+}
+.popup-content .el-icon-circle-close{
+  color: white;
+}
