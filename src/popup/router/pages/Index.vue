@@ -54,7 +54,7 @@
                   <el-image 
                     fit="contain"
                     v-for="(item,index) in scope.row.attachments" :key="index"
-                    style="width: 100px; height: 100px"
+                    style="width: 100px; height: 100px;margin-right: 10px;"
                     :src="item.content_url"
                     :preview-src-list="scope.row.attachments.map(obj => {return obj.content_url})">
                   </el-image>
@@ -70,7 +70,7 @@
                   :key="index"
                   type="primary"
                   color="#0bbd87"
-                  :timestamp="dateFormatter(activity.created_on)">
+                  :timestamp="activity.user.name + ' ' + dateFormatter(activity.created_on)">
                   <slot name="dot">
                     <!-- 属性变化 -->
                     <div v-for="(item,index) in activity.details" :key="index">
