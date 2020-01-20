@@ -64,7 +64,7 @@
             <!-- 历史记录 -->
             <div class="issue-journals">
               <span class="info-title">历史:</span>
-              <el-timeline v-if="scope.row.journals">
+              <el-timeline v-if="scope.row.journals" :reverse='true'>
                 <el-timeline-item
                   v-for="(activity, index) in scope.row.journals"
                   :key="index"
@@ -77,6 +77,7 @@
                       <span v-if="item.name == 'status_id'">状态: {{getStatusName(item.old_value)}} ---> <strong>{{getStatusName(item.new_value)}}</strong></span>
                       <span v-else-if="item.name == 'assigned_to_id'">指派给: {{usersInfo[item.old_value]}} ---> <strong>{{usersInfo[item.new_value]}}</strong></span>
                       <span v-else-if="item.name == 'subject'">主题: {{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
+                      <span v-else-if="item.name == 'copied_from'">复制于: <strong>#{{item.new_value}}</strong></span>
                     </div>
                     <!-- 备注 -->
                     <div v-if="activity.notes">备注: {{activity.notes}}</div>
@@ -141,6 +142,8 @@ export default {
             item.attachments = []
             return item
           })
+          window.chrome.browserAction.setBadgeText({text: this.tableData.length ? this.tableData.length + '' : ''});
+          window.chrome.browserAction.setBadgeBackgroundColor({color: [102, 205, 170, 255]});          
         }).catch(err => {
           this.loading = false
           console.log(err)
