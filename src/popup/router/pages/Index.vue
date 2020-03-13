@@ -1,6 +1,6 @@
 <template>
   <div class="popup-content">
-    <el-table v-if="this.redmineUrl && this.accessKey" ref="issuesTable" v-loading="loading" @expand-change='expandChange' @row-click='selectRow' element-loading-text="加载中" :data="tableData" style="width: 100%" :cell-class-name="cellClass">
+    <el-table v-if="this.redmineUrl && this.accessKey" ref="issuesTable" v-loading="loading" @expand-change='expandChange' @row-click='selectRow' element-loading-text="加载中" :data="tableData" style="width: 100%" :cell-class-name="cellClass" @row-contextmenu='rightClick'>
       <el-table-column prop="id" label="#" width="66"></el-table-column>
       <el-table-column prop="tracker.name" label="跟踪" width="60">
         <template slot-scope="scope">
@@ -36,10 +36,17 @@
               <img v-if="scope.row.priority.name == '普通'" class="issue-priority" src="../../../icons/medium_priority.png" alt="">
               <img v-else class="issue-priority" src="../../../icons/high_priority.png" alt="">
               <span class="info-value">{{scope.row.priority.name}}</span>
+              <!-- bug类型 严重程度 板块 等属性 -->
               <template v-for="(item) in scope.row.custom_fields">
                 <span class="info-title" :key='"info-title" + item.id'>{{item.name}}:</span>
                 <span class="info-value" :key='"info-value" + item.id'>{{item.multiple ? item.value.join() : item.value}}</span>
               </template>
+              <div class="operation-buttons">
+                <!-- 编辑按钮 -->
+                <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
+                <!-- 已解决按钮 -->
+                <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="markAsResolved(scope.row)"></el-button>
+              </div>
             </div>
             <!-- issue描述 -->
             <div class="issue-description" v-if="scope.row.description && scope.row.description.length > 0">
@@ -107,7 +114,8 @@ export default {
       accessKey: "",
       tableData: [],
       loading: true,
-      usersInfo: {}
+      usersInfo: {},
+      resolvedLoading:false
     };
   },
   components: {
@@ -134,7 +142,9 @@ export default {
           method: 'get',
           url: this.redmineUrl + '/issues.json',
           params: {
-            key: this.accessKey
+            key: this.accessKey,
+            assigned_to_id: 'me',
+            status_id: '1'
           }
         }).then(res => {
           this.loading = false
@@ -229,6 +239,48 @@ export default {
         }).catch(err => {
           console.log(err)
       })
+    },
+    rightClick(row, column, event){
+      event.preventDefault()
+      console.log(row)
+    },
+    // 进入redmine编辑页面
+    toEdit(issueId){
+      chrome.tabs.create({url: this.redmineUrl + '/issues/' + issueId});
+    },
+    // 标记为已解决
+    markAsResolved(row){
+      this.resolvedLoading = true
+      this.$api({
+        method: 'put',
+        headers: {
+          'Content-Type':'application/json'
+        },
+        url: this.redmineUrl + '/issues/' + row.id + '.json',
+        params: {
+          key: this.accessKey
+        },
+        data: JSON.stringify({
+          "issue": {
+            "status_id": 3
+          }
+        })
+      }).then(res => {
+        this.resolvedLoading = false
+        this.$message({
+          message: '已标记解决',
+          type: 'success'
+        });
+        row.status = {
+          id : 3,
+          name : '已解决'
+        }
+        this.getIssueDetail(row)
+        
+      }).catch(err => {
+        this.resolvedLoading = false
+        this.$message.error(err);
+    })
     }
   }
 };
@@ -276,11 +328,18 @@ export default {
       font-weight: bold;
       color: #08b9ff;
     }
+    .operation-buttons{
+      margin-right: 10px;
+      margin-top: 5px;
+      position: absolute;
+      right: 0
+    }
   }
   .issue-info{
     height: 30px;
   }
   .issue-description{
+    margin-top: 5px;
     .info-title{
       flex-shrink: 0;
     }
