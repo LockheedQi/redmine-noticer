@@ -275,7 +275,7 @@ export default {
           id : 3,
           name : '已解决'
         }
-        this.getIssueDetail(row)
+        this.getIssues()
         
       }).catch(err => {
         this.resolvedLoading = false
