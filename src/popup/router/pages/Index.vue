@@ -172,6 +172,13 @@ export default {
     },
     selectRow(row, column, event){
       this.$refs.issuesTable.toggleRowExpansion(row);
+      // 测试通知用
+      // chrome.notifications.create(null,{
+      //   type: 'basic',
+      //   iconUrl: '../../../icons/logo.png',
+      //   title: "测试Extension通知",
+      //   message: '我是通知内容',
+      // });
     },
     expandChange(row,expandedRows){
       // 展开row
