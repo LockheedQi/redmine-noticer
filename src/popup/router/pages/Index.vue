@@ -85,6 +85,9 @@
                       <span v-else-if="item.name == 'assigned_to_id'">指派给: {{usersInfo[item.old_value]}} ---> <strong>{{usersInfo[item.new_value]}}</strong></span>
                       <span v-else-if="item.name == 'subject'">主题: {{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
                       <span v-else-if="item.name == 'copied_from'">复制于: <strong>#{{item.new_value}}</strong></span>
+                      <span v-else-if="item.name == 'done_ratio'">完成百分比:{{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
+                      <span v-else-if="item.name == 'start_date'">开始日期:{{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
+                      <span v-else-if="item.name == 'due_date'">计划完成日期:{{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
                     </div>
                     <!-- 备注 -->
                     <div v-if="activity.notes">备注: {{activity.notes}}</div>
@@ -330,22 +333,22 @@ export default {
     }
     .operation-buttons{
       margin-right: 10px;
-      margin-top: 5px;
       position: absolute;
       right: 0
     }
   }
   .issue-info{
-    height: 30px;
+    height: 40px;
   }
   .issue-description{
-    margin-top: 5px;
+    margin-top: 10px;
     .info-title{
       flex-shrink: 0;
     }
     .info-description{
       text-align: left;
       margin-left: 15px;
+      margin-right: 10px;
     }
   }
   .issue-attachments{

@@ -31,9 +31,9 @@ setInterval(() => {
     .then(result => {
       chrome.storage.sync.get({ noticeDic: {} }, (items) => {
 
-        // 更细角标
+        // 更新角标
         window.chrome.browserAction.setBadgeText({text: result.issues ? result.issues.length + '' : ''});
-
+        window.chrome.browserAction.setBadgeBackgroundColor({color: [102, 205, 170, 255]});
         noticedIssuesDic = items.noticeDic
         var newNoticedDic = {}
         for (var i = 0; i < result.issues.length; i++){
