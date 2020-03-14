@@ -330,22 +330,22 @@ export default {
     }
     .operation-buttons{
       margin-right: 10px;
-      margin-top: 5px;
       position: absolute;
       right: 0
     }
   }
   .issue-info{
-    height: 30px;
+    height: 40px;
   }
   .issue-description{
-    margin-top: 5px;
+    margin-top: 10px;
     .info-title{
       flex-shrink: 0;
     }
     .info-description{
       text-align: left;
       margin-left: 15px;
+      margin-right: 10px;
     }
   }
   .issue-attachments{
