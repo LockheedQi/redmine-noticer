@@ -85,6 +85,9 @@
                       <span v-else-if="item.name == 'assigned_to_id'">指派给: {{usersInfo[item.old_value]}} ---> <strong>{{usersInfo[item.new_value]}}</strong></span>
                       <span v-else-if="item.name == 'subject'">主题: {{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
                       <span v-else-if="item.name == 'copied_from'">复制于: <strong>#{{item.new_value}}</strong></span>
+                      <span v-else-if="item.name == 'done_ratio'">完成百分比:{{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
+                      <span v-else-if="item.name == 'start_date'">开始日期:{{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
+                      <span v-else-if="item.name == 'due_date'">计划完成日期:{{item.old_value}} ---> <strong>{{item.new_value}}</strong></span>
                     </div>
                     <!-- 备注 -->
                     <div v-if="activity.notes">备注: {{activity.notes}}</div>
