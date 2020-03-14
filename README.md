@@ -1,2 +1,6 @@
 # redmine-noticer
-This is an extension for chrome,notice you the new message of redmine.
+## 简介
+redmine-noticer是一款面向研发&测试的Chrome扩展程序,旨在帮助那些需要频繁修改redmine中issue状态的用户可以一键"已解决"当前issue,简化redmine操作流程,帮助开发人员及时接收最新的issue通知.
+
+## 背景
+Redmine是一款很强大的开源项目管理软件,大部分用Redmine的企业目前仅仅是简单集成,Redmine官方虽然也提供一些第三方的强大插件和主题,但并不是我们所有用户都有权限和精力和运维去沟通,给自用的Redmine配置这些东西,例如更现代的主题、更及时的邮件/钉钉/微信通知等等.研发redmine-noticer这款扩展程序就是为了解决这样的痛点,包括我自己在内和一些同事已经将本扩展程序应用到实际工作中,不再为了标记一个issue状态频繁打开Redmine的Web页面,同时每隔一分钟redmine-noticer就会提醒你当前指派到自己的激活状态的issue.后期redmine-noticer会陆续支持各项自定义配置,不断完善,感谢支持.
