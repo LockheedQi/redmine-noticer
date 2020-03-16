@@ -29,7 +29,7 @@ setInterval(() => {
   fetch(redmineUrl + "/issues.json?key=" + accessKey + '&assigned_to_id=me&status_id=1', requestOptions)
     .then(response => response.json())
     .then(result => {
-      chrome.storage.sync.get({ noticeDic: {} }, (items) => {
+      chrome.storage.local.get({ noticeDic: {} }, (items) => {
 
         // 更新角标
         window.chrome.browserAction.setBadgeText({text: result.issues ? result.issues.length + '' : ''});
@@ -52,8 +52,8 @@ setInterval(() => {
           newNoticedDic[issueId] = 'noticed'
         }
         // 保存数据
-        chrome.storage.sync.set({noticeDic: newNoticedDic}, ()=>{
-            
+        chrome.storage.local.set({noticeDic: newNoticedDic}, ()=>{
+
         });
       });
     })
