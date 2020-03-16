@@ -42,10 +42,12 @@
                 <span class="info-value" :key='"info-value" + item.id'>{{item.multiple ? item.value.join() : item.value}}</span>
               </template>
               <div class="operation-buttons">
-                <!-- 编辑按钮 -->
+                <!-- 关闭 -->
+                <!-- <el-button type="danger" icon="el-icon-close"  circle size="mini" @click="update(scope.row,5)"></el-button> -->
+                <!-- 编辑 -->
                 <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
-                <!-- 已解决按钮 -->
-                <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="markAsResolved(scope.row)"></el-button>
+                <!-- 已解决 -->
+                <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="update(scope.row,3)"></el-button>
               </div>
             </div>
             <!-- issue描述 -->
@@ -251,8 +253,8 @@ export default {
     toEdit(issueId){
       chrome.tabs.create({url: this.redmineUrl + '/issues/' + issueId});
     },
-    // 标记为已解决
-    markAsResolved(row){
+    // 更新issue
+    update(row,status_id){
       this.resolvedLoading = true
       this.$api({
         method: 'put',
@@ -265,19 +267,15 @@ export default {
         },
         data: JSON.stringify({
           "issue": {
-            "status_id": 3
+            "status_id": status_id
           }
         })
       }).then(res => {
         this.resolvedLoading = false
         this.$message({
-          message: '已标记解决',
+          message: status_id == 3 ? '已标记解决' : '已关闭',
           type: 'success'
         });
-        row.status = {
-          id : 3,
-          name : '已解决'
-        }
         this.getIssues()
         
       }).catch(err => {
@@ -334,7 +332,7 @@ export default {
     .operation-buttons{
       margin-right: 10px;
       position: absolute;
-      right: 0
+      right: 0;
     }
   }
   .issue-info{
