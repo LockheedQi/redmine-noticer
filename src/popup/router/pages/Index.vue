@@ -51,22 +51,26 @@
                 <span class="info-title" :key='"info-title" + item.id'>{{item.name}}:</span>
                 <span class="info-value" :key='"info-value" + item.id'>{{item.multiple ? item.value.join() : item.value}}</span>
               </template>
-              <div class="operation-buttons">
-                <!-- 关闭 -->
-                <el-button v-if="scope.row.couldClose" type="danger" icon="el-icon-close"  circle size="mini" @click="update(scope.row,5)"></el-button>
-                <!-- 编辑 -->
-                <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
-                <!-- 指派给 -->
-                <!-- <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button> -->
-                <el-dropdown class="dropdown" trigger="click" size="small" @command="handleCommand">
-                  <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button>
-                  <el-dropdown-menu slot="dropdown" class="dropdown-menu">
-                    <el-dropdown-item v-for="(item,index) in scope.row.assignToArr" :key="index" :command=[item.userID,scope.row]>{{item.userName}}</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-                <!-- 已解决 -->
-                <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="update(scope.row,3)"></el-button>
-              </div>
+              <!-- 淡入淡出动画 -->
+              <transition name="el-fade-in-linear"> 
+                <div class="operation-buttons" v-if="scope.row.showEdit">
+                  <!-- 关闭 -->
+                  <el-button v-if="scope.row.couldClose" type="danger" icon="el-icon-close"  circle size="mini" @click="update(scope.row,5)"></el-button>
+                  <!-- 编辑 -->
+                  <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
+                  <!-- 指派给 -->
+                  <!-- <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button> -->
+                  <el-dropdown class="dropdown" trigger="click" size="small" @command="handleCommand">
+                    <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button>
+                    <el-dropdown-menu slot="dropdown" class="dropdown-menu">
+                      <el-dropdown-item v-for="(item,index) in scope.row.assignToArr" :key="index" :command=[item.userID,scope.row]>{{item.userName}}</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                  <!-- 已解决 -->
+                  <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="update(scope.row,3)"></el-button>
+                </div>
+              </transition>
+              
             </div>
             <!-- issue描述 -->
             <div class="issue-description" v-if="scope.row.description && scope.row.description.length > 0">
@@ -176,6 +180,7 @@ export default {
             item.attachments = []
             item.couldClose = false//是否有权限关闭
             item.assignToArr = []//可指派到的用户
+            item.showEdit = false
             return item
           })
           window.chrome.browserAction.setBadgeText({text: this.tableData.length ? this.tableData.length + '' : ''});
@@ -271,6 +276,7 @@ export default {
                 row.couldClose = true
               }
             })
+            row.showEdit = true
           }
           // 指派给
           else if (item.name == 'issue[assigned_to_id]'){
