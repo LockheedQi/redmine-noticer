@@ -400,6 +400,9 @@ export default {
       margin-right: 10px;
       position: absolute;
       right: 0;
+      .dropdown{
+        margin: 0 10px;
+      }
     }
   }
   .issue-info{
