@@ -56,6 +56,14 @@
                 <el-button v-if="scope.row.couldClose" type="danger" icon="el-icon-close"  circle size="mini" @click="update(scope.row,5)"></el-button>
                 <!-- 编辑 -->
                 <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
+                <!-- 指派给 -->
+                <!-- <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button> -->
+                <el-dropdown class="dropdown" trigger="click" size="small" @command="handleCommand">
+                  <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button>
+                  <el-dropdown-menu slot="dropdown" class="dropdown-menu">
+                    <el-dropdown-item v-for="(item,index) in scope.row.assignToArr" :key="index" :command=[item.userID,scope.row]>{{item.userName}}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
                 <!-- 已解决 -->
                 <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="update(scope.row,3)"></el-button>
               </div>
@@ -166,7 +174,8 @@ export default {
           //添加默认值,以便Vue可以监听属性变化
           this.tableData = res.data.issues.map(item => {
             item.attachments = []
-            item.couldClose = false
+            item.couldClose = false//是否有权限关闭
+            item.assignToArr = []//可指派到的用户
             return item
           })
           window.chrome.browserAction.setBadgeText({text: this.tableData.length ? this.tableData.length + '' : ''});
@@ -242,6 +251,7 @@ export default {
         return item
       })
     },
+    // 获取编辑页面
     getIssueEdit(row){
       this.$api({
         method:'get',
@@ -254,10 +264,23 @@ export default {
         var el = document.createElement( 'html' );
         el.innerHTML = res.data
         el.getElementsByTagName('select').forEach(function(item,index){
+          // 状态
           if (item.name == 'issue[status_id]'){
             item.getElementsByTagName('option').forEach(function(option,index){
               if (option.innerHTML == '已关闭'){
                 row.couldClose = true
+              }
+            })
+          }
+          // 指派给
+          else if (item.name == 'issue[assigned_to_id]'){
+            row.assignToArr = []
+            item.getElementsByTagName('option').forEach(function(option,index){
+              if (option.innerHTML.indexOf('&') == -1){
+                row.assignToArr.push({
+                  userName:option.innerHTML,
+                  userID:option.value
+                })
               }
             })
           }
@@ -283,6 +306,12 @@ export default {
           console.log(err)
       })
     },
+    //点击"指派给"下拉菜单选项
+    handleCommand(values){
+      let userID = values[0]
+      let row = values[1]
+      this.update(row,row.status.id,userID)
+    },
     rightClick(row, column, event){
       event.preventDefault()
     },
@@ -290,8 +319,8 @@ export default {
     toEdit(issueId){
       chrome.tabs.create({url: this.redmineUrl + '/issues/' + issueId});
     },
-    // 更新issue
-    update(row,status_id){
+    // 更新issue row:所在行的数据 status_id:状态 assigned_to_id:指派给
+    update(row,status_id,assigned_to_id){
       this.resolvedLoading = true
       this.$api({
         method: 'put',
@@ -304,7 +333,8 @@ export default {
         },
         data: JSON.stringify({
           "issue": {
-            "status_id": status_id
+            "status_id": status_id,
+            "assigned_to_id": assigned_to_id ? assigned_to_id : row.assigned_to.id
           }
         })
       }).then(res => {

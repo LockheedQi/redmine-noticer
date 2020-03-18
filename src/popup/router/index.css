@@ -44,3 +44,7 @@
 .operation-buttons i{
   font-weight: bold;
 }
+.dropdown-menu{
+  height: 200px;
+  overflow: auto;
+}
