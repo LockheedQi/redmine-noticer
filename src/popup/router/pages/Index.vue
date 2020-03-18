@@ -5,17 +5,27 @@
       <el-table-column prop="tracker.name" label="跟踪" width="60">
         <template slot-scope="scope">
           <div class="tracker-icon">
+            <!-- 任务 -->
             <img v-if="scope.row.tracker.id == 5" class="tracker" src="../../../icons/task.png" alt />
+            <!-- BUG -->
             <img
               v-else-if="scope.row.tracker.id == 6"
               class="tracker"
               src="../../../icons/bug.png"
               alt
             />
+            <!-- 需求 -->
             <img
               v-else-if="scope.row.tracker.id == 8"
               class="tracker"
               src="../../../icons/works.png"
+              alt
+            />
+            <!-- 工单 -->
+            <img
+              v-else-if="scope.row.tracker.id == 9"
+              class="tracker"
+              src="../../../icons/workOrder.png"
               alt
             />
           </div>
@@ -43,7 +53,7 @@
               </template>
               <div class="operation-buttons">
                 <!-- 关闭 -->
-                <!-- <el-button type="danger" icon="el-icon-close"  circle size="mini" @click="update(scope.row,5)"></el-button> -->
+                <el-button v-if="scope.row.couldClose" type="danger" icon="el-icon-close"  circle size="mini" @click="update(scope.row,5)"></el-button>
                 <!-- 编辑 -->
                 <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
                 <!-- 已解决 -->
@@ -153,8 +163,10 @@ export default {
           }
         }).then(res => {
           this.loading = false
+          //添加默认值,以便Vue可以监听属性变化
           this.tableData = res.data.issues.map(item => {
             item.attachments = []
+            item.couldClose = false
             return item
           })
           window.chrome.browserAction.setBadgeText({text: this.tableData.length ? this.tableData.length + '' : ''});
@@ -200,6 +212,8 @@ export default {
         }).catch(err => {
           console.log(err)
       })
+      //获取编辑页面
+      this.getIssueEdit(row)
     },
     getStatusName(statusId){
       switch(statusId){
@@ -219,13 +233,37 @@ export default {
     },
     getUsers(journals){
       journals.map(item => {
-        if (item.details[0].name == 'assigned_to_id'){
+        if (item.details[0] && item.details[0].name == 'assigned_to_id'){
           let userIdOld = item.details[0].old_value
           let userIdNew = item.details[0].new_value
           this.getUserInfo(userIdOld)
           this.getUserInfo(userIdNew)
         }
         return item
+      })
+    },
+    getIssueEdit(row){
+      this.$api({
+        method:'get',
+        url: this.redmineUrl + '/issues/' + row.id + '/edit',
+        params: {
+          key: this.accessKey
+        }
+      }).then(res => {
+        // 遍历option 如果存在'已关闭'且value为5的话,显示关闭按钮
+        var el = document.createElement( 'html' );
+        el.innerHTML = res.data
+        el.getElementsByTagName('select').forEach(function(item,index){
+          if (item.name == 'issue[status_id]'){
+            item.getElementsByTagName('option').forEach(function(option,index){
+              if (option.innerHTML == '已关闭'){
+                row.couldClose = true
+              }
+            })
+          }
+        })
+      }).catch(err => {
+
       })
     },
     // 获取用户资料
@@ -247,7 +285,6 @@ export default {
     },
     rightClick(row, column, event){
       event.preventDefault()
-      console.log(row)
     },
     // 进入redmine编辑页面
     toEdit(issueId){
