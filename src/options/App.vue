@@ -18,10 +18,11 @@
 <script>
 export default {
   name: "App",
+  props:['isComponent'],
   data() {
     return {
       redmineUrl: "",
-      accessKey: ""
+      accessKey: "",
     };
   },
   methods: {
@@ -29,10 +30,22 @@ export default {
       // 保存数据
       chrome.storage.sync.set({redmineUrl: this.redmineUrl,accessKey:this.accessKey}, ()=>{
         // 保存成功
-        this.$emit('getSettings')
+        if (this.isComponent){
+          this.$emit('getSettings')
+        }else{
+
+        } 
       });
-      
     }
+  },
+  mounted () {
+    // 获取本地数据
+    chrome.storage.sync.get({ redmineUrl: "", accessKey: ""}, (items) => {
+      if (items.redmineUrl && items.accessKey) {
+        this.redmineUrl = items.redmineUrl;
+        this.accessKey = items.accessKey;
+      } 
+    });
   },
 };
 </script>
@@ -73,8 +86,8 @@ export default {
         font-family: SourceHanSansSC-regular;
       }
       .el-input {
-        margin-left: 28px;
-        width: 313px;
+        margin-left: 10px;
+        width: 340px;
         // border: 1px solid rgba(220, 223, 230, 1);
       }
     }

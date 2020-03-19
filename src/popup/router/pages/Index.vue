@@ -55,16 +55,16 @@
               <transition name="el-fade-in-linear"> 
                 <div class="operation-buttons" v-if="scope.row.showEdit">
                   <!-- 关闭 -->
-                  <el-tooltip class="item" effect="dark" content="标记已关闭" placement="top-start" transition="el-zoom-in-bottom" open-delay="1500">
+                  <el-tooltip class="item" effect="dark" content="标记已关闭" placement="top-start" transition="el-zoom-in-bottom" :open-delay=1500>
                     <el-button v-if="scope.row.couldClose" type="danger" icon="el-icon-close"  circle size="mini" @click="update(scope.row,5)"></el-button>
                   </el-tooltip>
                   <!-- 编辑 -->
-                  <el-tooltip class="item" effect="dark" content="编辑" placement="top-start" transition="el-zoom-in-bottom" open-delay="1500">
+                  <el-tooltip class="item" effect="dark" content="编辑" placement="top-start" transition="el-zoom-in-bottom" :open-delay=1500>
                     <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
                   </el-tooltip>
                   <!-- 指派给 -->
                   <el-dropdown class="dropdown" trigger="click" size="small" @command="handleCommand">
-                    <el-tooltip class="item" effect="dark" content="指派给" placement="top-start" transition="el-zoom-in-bottom" open-delay="1500">
+                    <el-tooltip class="item" effect="dark" content="指派给" placement="top-start" transition="el-zoom-in-bottom" :open-delay=1500>
                       <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button>
                     </el-tooltip>
                     <el-dropdown-menu slot="dropdown" class="dropdown-menu">
@@ -72,7 +72,7 @@
                     </el-dropdown-menu>
                   </el-dropdown>
                   <!-- 已解决 -->
-                  <el-tooltip class="item" effect="dark" content="标记已解决" placement="top-start" transition="el-zoom-in-bottom" open-delay="1500">
+                  <el-tooltip class="item" effect="dark" content="标记已解决" placement="top-start" transition="el-zoom-in-bottom" :open-delay=1500>
                     <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="update(scope.row,3)"></el-button>
                   </el-tooltip>
                   
@@ -132,7 +132,7 @@
       </el-table-column>
     </el-table>
     <div v-else class="options-content">
-      <options @getSettings='getSettings'></options>
+      <options @getSettings='getSettings' :isComponent="true"></options>
     </div>
     
   </div>
