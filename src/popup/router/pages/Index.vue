@@ -284,7 +284,6 @@ export default {
                 row.couldClose = true
               }
             })
-            row.showEdit = true
           }
           // 指派给
           else if (item.name == 'issue[assigned_to_id]'){
@@ -299,8 +298,9 @@ export default {
             })
           }
         })
+        row.showEdit = true
       }).catch(err => {
-
+        row.showEdit = true
       })
     },
     // 获取用户资料
