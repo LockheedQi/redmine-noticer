@@ -32,7 +32,7 @@ setInterval(() => {
       chrome.storage.local.get({ noticeDic: {} }, (items) => {
 
         // 更新角标
-        window.chrome.browserAction.setBadgeText({text: result.issues ? result.issues.length + '' : ''});
+        window.chrome.browserAction.setBadgeText({text: result.total_count ? result.total_count + '' : ''});
         window.chrome.browserAction.setBadgeBackgroundColor({color: [102, 205, 170, 255]});
         noticedIssuesDic = items.noticeDic
         var newNoticedDic = {}

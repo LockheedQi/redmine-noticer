@@ -134,7 +134,14 @@
     <div v-else class="options-content">
       <options @getSettings='getSettings' :isComponent="true"></options>
     </div>
-    
+    <div class="page-content">
+      <el-pagination
+        :hide-on-single-page="hidePage"
+        :total="total"
+        layout="prev, pager, next"
+        @current-change="pageChange">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -150,7 +157,10 @@ export default {
       tableData: [],
       loading: true,
       usersInfo: {},
-      resolvedLoading:false
+      resolvedLoading:false,
+      hidePage:true,
+      pageLimit:25,
+      total:0
     };
   },
   components: {
@@ -172,12 +182,13 @@ export default {
         }
       });
     },
-    getIssues() {
+    getIssues(page) {
       this.$api({
           method: 'get',
           url: this.redmineUrl + '/issues.json',
           params: {
             key: this.accessKey,
+            page: page ? page : 0,
             assigned_to_id: 'me',
             status_id: '1'
           }
@@ -191,7 +202,9 @@ export default {
             item.showEdit = false
             return item
           })
-          window.chrome.browserAction.setBadgeText({text: this.tableData.length ? this.tableData.length + '' : ''});
+          this.total = res.data.total_count
+          this.hidePage = res.data.total_count < this.pageLimit
+          window.chrome.browserAction.setBadgeText({text: res.data.total_count ? res.data.total_count + '' : ''});
           window.chrome.browserAction.setBadgeBackgroundColor({color: [102, 205, 170, 255]});          
         }).catch(err => {
           this.loading = false
@@ -363,6 +376,11 @@ export default {
         this.resolvedLoading = false
         this.$message.error(err);
     })
+    },
+    // 切换分页
+    pageChange(page){
+      this.getIssues(page)
+      window.scrollTo(0,0);
     }
   }
 };
@@ -448,6 +466,12 @@ export default {
     div,span{
       font-size: 12px;
     }
+  }
+  .page-content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
   }
 }
 </style>
