@@ -51,6 +51,11 @@
                 <span class="info-title" :key='"info-title" + item.id'>{{item.name}}:</span>
                 <span class="info-value" :key='"info-value" + item.id'>{{item.multiple ? item.value.join() : item.value}}</span>
               </template>
+              <!-- 作者 -->
+              <div class="author">
+                <i class="el-icon-s-custom"></i>
+                <span class="info-value">{{scope.row.author.name}}</span>
+              </div>
               <!-- 淡入淡出动画 -->
               <transition name="el-fade-in-linear"> 
                 <div class="operation-buttons" v-if="scope.row.showEdit">
