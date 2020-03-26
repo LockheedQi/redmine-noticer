@@ -448,6 +448,14 @@ export default {
         margin: 0 10px;
       }
     }
+    .author{
+      margin-left: 10px;
+      .info-value{
+        margin-left: 0;
+        color: #222831;
+        font-size: 10px;
+      }
+    }
   }
   .issue-info{
     height: 40px;
