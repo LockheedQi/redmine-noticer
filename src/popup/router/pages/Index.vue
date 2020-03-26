@@ -452,8 +452,9 @@ export default {
       margin-left: 10px;
       .info-value{
         margin-left: 0;
-        color: #222831;
+        color: gray;
         font-size: 10px;
+        font-weight: normal;
       }
     }
   }
