@@ -67,7 +67,7 @@
                     <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
                   </el-tooltip>
                   <!-- 指派给 -->
-                  <el-dropdown class="dropdown" trigger="click" size="small" @command="handleCommand">
+                  <el-dropdown v-if="scope.row.assignToArr && scope.row.assignToArr.count > 0" class="dropdown" trigger="click" size="small" @command="handleCommand">
                     <el-tooltip class="item" effect="dark" content="指派给" placement="top-start" transition="el-zoom-in-bottom" :open-delay=800>
                       <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button>
                     </el-tooltip>
