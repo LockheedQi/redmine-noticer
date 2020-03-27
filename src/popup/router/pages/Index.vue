@@ -169,7 +169,10 @@ export default {
       resolvedLoading:false,
       hidePage:true,
       pageLimit:25,
-      total:0
+      total:0,
+      assigned_to_id: '',
+      status_id: '',
+      tracker_id: ''
     };
   },
   components: {
@@ -177,14 +180,44 @@ export default {
   },
   mounted() {
     this.getSettings()
+    var that = this
+    chrome.extension.onMessage.addListener(
+      function(request, sender, sendResponse) {
+        if (request.msg && request.msg == 'reloadConfig'){
+          that.getSettings()
+        }
+      }
+    );
   },
   methods: {
     getSettings(){
-      chrome.storage.sync.get({ redmineUrl: "", accessKey: "" }, (items) => {
+      this.status_id = ''
+      this.assigned_to_id = ''
+      this.tracker_id = ''
+      var that = this
+      chrome.storage.sync.get({ redmineUrl: "", accessKey: "", issue_statuses: null, trackers: null, assign_to: 'me' }, (items) => {
         if (items.redmineUrl && items.accessKey) {
           this.redmineUrl = items.redmineUrl;
           this.accessKey = items.accessKey;
-          
+          if (items.assign_to != '') {
+            this.assigned_to_id = '&assigned_to_id=' + items.assign_to
+          }
+          if (items.issue_statuses) {
+            JSON.parse(items.issue_statuses).forEach(function (item, index) {
+              if (item.checked) {
+                that.status_id += item.id + '|'
+              }
+            })
+            this.status_id = this.status_id != '' ? '&status_id=' + this.status_id : this.status_id
+          }
+          if (items.trackers) {
+            JSON.parse(items.trackers).forEach(function (item, index) {
+              if (item.checked) {
+                that.tracker_id += item.id + '|'
+              }
+            })
+            this.tracker_id = this.tracker_id != '' ? '&tracker_id=' + this.tracker_id : this.tracker_id
+          }
           this.getIssues();
         } else {
           console.log("请配置RedmineUrl和accessKey");
@@ -194,12 +227,9 @@ export default {
     getIssues(page) {
       this.$api({
           method: 'get',
-          url: this.redmineUrl + '/issues.json',
+          url: this.redmineUrl + '/issues.json?key=' + this.accessKey + this.assigned_to_id + this.status_id + this.tracker_id,
           params: {
-            key: this.accessKey,
             page: page ? page : 0,
-            assigned_to_id: 'me',
-            status_id: '1'
           }
         }).then(res => {
           this.loading = false

@@ -51,3 +51,7 @@
 .el-icon-arrow-right{
   font-weight: bold;
 }
+.options-value .el-checkbox{
+  margin-right: 10px;
+  margin-left: 0 !important;
+}
