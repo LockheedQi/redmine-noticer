@@ -143,7 +143,7 @@
     <div v-else class="options-content">
       <options @getSettings='getSettings' :isComponent="true"></options>
     </div>
-    <div class="page-content">
+    <div class="page-content" v-if="!hidePage">
       <el-pagination
         :hide-on-single-page="hidePage"
         :total="total"
