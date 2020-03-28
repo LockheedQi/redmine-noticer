@@ -147,6 +147,7 @@
       <el-pagination
         :hide-on-single-page="hidePage"
         :total="total"
+        :page-size="pageLimit"
         layout="prev, pager, next"
         @current-change="pageChange">
       </el-pagination>
