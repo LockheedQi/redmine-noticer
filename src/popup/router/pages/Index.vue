@@ -164,6 +164,8 @@
 import { log } from "util";
 import moment from "moment";
 import options from '../../../options/App'
+moment.lang('zh_CN')
+
 export default {
   data() {
     return {
@@ -266,7 +268,7 @@ export default {
       return this.dateFormatter(cellValue)
     },
     dateFormatter(val){
-      return moment(val).format("YYYY-MM-DD HH:mm:ss");
+      return moment(new Date(val)).fromNow();
     },
     selectRow(row, column, event){
       this.$refs.issuesTable.toggleRowExpansion(row);
