@@ -10,29 +10,83 @@ import store from './store'
 var redmineUrl = ''
 var accessKey = ''
 var noticedIssuesDic = {}
+var openNotice = true
+var issue_statuses = null
+var trackers = null
+var assign_to = 'me'
+var interval = 1 
+var timer = null
 
-chrome.storage.sync.get({ redmineUrl: "", accessKey: ""}, (items) => {
-  if (items.redmineUrl && items.accessKey) {
-    redmineUrl = items.redmineUrl;
-    accessKey = items.accessKey;
-  } else {
-    console.log("请配置RedmineUrl和accessKey");
-  }
-});
-// 每隔指定时间轮询API 更新issue列表,角标,发送通知后更新通知状态
-setInterval(() => {
+window.reloadConfig = function () {
+  clearInterval(timer)
+  getConfig()
+}
 
+getConfig()
+
+function getConfig() {
+  // 获取配置信息
+  chrome.storage.sync.get({ redmineUrl: "", accessKey: "", openNotice: true, issue_statuses: null, trackers: null, assign_to: 'me', interval: 1}, (items) => {
+    if (items.redmineUrl && items.accessKey) {
+      redmineUrl = items.redmineUrl;
+      accessKey = items.accessKey;
+      openNotice = items.openNotice;
+      assign_to = items.assign_to;
+      interval = items.interval;
+      issue_statuses = items.issue_statuses ? JSON.parse(items.issue_statuses) : null;
+      trackers = items.trackers ? JSON.parse(items.trackers) : null;
+      getIssues()
+      startInterval()
+    } else {
+      console.log("请配置RedmineUrl和accessKey");
+    }
+  });
+}
+
+function startInterval(){
+  // 每隔指定时间轮询API 更新issue列表,角标,发送通知后更新通知状态
+  timer = setInterval(() => {
+    getIssues()
+  }, 1000 * interval);
+
+}
+
+function getIssues() {
   var requestOptions = {
     method: 'GET',
     redirect: 'follow'
   };
-  fetch(redmineUrl + "/issues.json?key=" + accessKey + '&assigned_to_id=me&status_id=1', requestOptions)
+  let assigned_to_id = ''
+  if (assign_to != '') {
+    assigned_to_id = '&assigned_to_id=' + assign_to
+  }
+
+  let status_id = ''
+  if (issue_statuses) {
+    issue_statuses.forEach(function (item, index) {
+      if (item.checked) {
+        status_id += item.id + '|'
+      }
+    })
+    status_id = status_id != '' ? '&status_id=' + status_id : status_id
+  }
+
+  let tracker_id = ''
+  if (trackers) {
+    trackers.forEach(function (item, index) {
+      if (item.checked) {
+        tracker_id += item.id + '|'
+      }
+    })
+    tracker_id = tracker_id != '' ? '&tracker_id=' + tracker_id : tracker_id
+  }
+  fetch(redmineUrl + "/issues.json?key=" + accessKey + assigned_to_id + status_id + tracker_id, requestOptions)
     .then(response => response.json())
     .then(result => {
-      chrome.storage.sync.get({ noticeDic: {} }, (items) => {
+      chrome.storage.local.get({ noticeDic: {} }, (items) => {
 
         // 更新角标
-        window.chrome.browserAction.setBadgeText({text: result.issues ? result.issues.length + '' : ''});
+        window.chrome.browserAction.setBadgeText({text: result.total_count ? result.total_count + '' : ''});
         window.chrome.browserAction.setBadgeBackgroundColor({color: [102, 205, 170, 255]});
         noticedIssuesDic = items.noticeDic
         var newNoticedDic = {}
@@ -42,22 +96,27 @@ setInterval(() => {
           if (noticedIssuesDic[issueId]) {// 已经通知
               
           } else {
-            chrome.notifications.create(null,{
-              type: 'basic',
-              iconUrl: '../../../icons/logo.png',
-              title: issue.subject,
-              message: issue.description,
-            });
+            if (openNotice) {
+              chrome.notifications.create(null,{
+                type: 'basic',
+                iconUrl: '../../../icons/logo.png',
+                title: issue.subject,
+                message: issue.description,
+              });
+            }
           }
-          newNoticedDic[issueId] = 'noticed'
+          if (openNotice) {
+            newNoticedDic[issueId] = 'noticed'
+          }
+          
         }
         // 保存数据
-        chrome.storage.sync.set({noticeDic: newNoticedDic}, ()=>{
-            
+        chrome.storage.local.set({noticeDic: newNoticedDic}, ()=>{
+
         });
       });
     })
     .catch(error => console.log('error', error));
+}
 
-}, 60000);
 

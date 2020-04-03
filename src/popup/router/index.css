@@ -16,7 +16,7 @@
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 .popup-content .text-left .cell{
   text-align: left;
@@ -34,4 +34,24 @@
 }
 .popup-content .el-icon-circle-close{
   color: white;
+}
+.popup-content .el-timeline-item__node--normal{
+  background-color: red;
+  width: 8px;
+  height: 8px;
+  left: 1px;
+}
+.operation-buttons i{
+  font-weight: bold;
+}
+.dropdown-menu{
+  height: 200px;
+  overflow: auto;
+}
+.el-icon-arrow-right{
+  font-weight: bold;
+}
+.options-value .el-checkbox{
+  margin-right: 10px;
+  margin-left: 0 !important;
 }

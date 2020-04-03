@@ -5,17 +5,27 @@
       <el-table-column prop="tracker.name" label="跟踪" width="60">
         <template slot-scope="scope">
           <div class="tracker-icon">
+            <!-- 任务 -->
             <img v-if="scope.row.tracker.id == 5" class="tracker" src="../../../icons/task.png" alt />
+            <!-- BUG -->
             <img
               v-else-if="scope.row.tracker.id == 6"
               class="tracker"
               src="../../../icons/bug.png"
               alt
             />
+            <!-- 需求 -->
             <img
               v-else-if="scope.row.tracker.id == 8"
               class="tracker"
               src="../../../icons/works.png"
+              alt
+            />
+            <!-- 工单 -->
+            <img
+              v-else-if="scope.row.tracker.id == 9"
+              class="tracker"
+              src="../../../icons/workOrder.png"
               alt
             />
           </div>
@@ -41,12 +51,48 @@
                 <span class="info-title" :key='"info-title" + item.id'>{{item.name}}:</span>
                 <span class="info-value" :key='"info-value" + item.id'>{{item.multiple ? item.value.join() : item.value}}</span>
               </template>
-              <div class="operation-buttons">
-                <!-- 编辑按钮 -->
-                <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
-                <!-- 已解决按钮 -->
-                <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="markAsResolved(scope.row)"></el-button>
+              <!-- 作者 -->
+              <div class="author">
+                <i class="el-icon-s-custom"></i>
+                <span class="info-value">{{scope.row.author.name}}</span>
               </div>
+              <!-- 指派给 -->
+              <div class="author">
+                <i class="el-icon-thumb"></i>
+                <span class="info-value">{{scope.row.assigned_to.name}}</span>
+              </div>
+              <!-- 淡入淡出动画 -->
+              <transition name="el-fade-in-linear"> 
+                <div class="operation-buttons" v-if="scope.row.showEdit">
+                  <!-- 关闭 -->
+                  <el-tooltip class="item" effect="dark" content="标记已关闭" placement="top-start" transition="el-zoom-in-bottom" :open-delay=800>
+                    <el-button v-if="scope.row.couldClose" type="danger" icon="el-icon-switch-button"  circle size="mini" @click="update(scope.row,5)"></el-button>
+                  </el-tooltip>
+                  <!-- 不需要解决 -->
+                  <el-tooltip class="item" effect="dark" content="不需要解决" placement="top-start" transition="el-zoom-in-bottom" :open-delay=800>
+                    <el-button v-if="scope.row.notNeedFix" type="info" icon="el-icon-close"  circle size="mini" @click="update(scope.row,6)"></el-button>
+                  </el-tooltip>
+                  <!-- 编辑 -->
+                  <el-tooltip class="item" effect="dark" content="编辑" placement="top-start" transition="el-zoom-in-bottom" :open-delay=800>
+                    <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="toEdit(scope.row.id)"></el-button>
+                  </el-tooltip>
+                  <!-- 指派给 -->
+                  <el-dropdown v-if="scope.row.assignToArr && scope.row.assignToArr.length > 0" class="dropdown" trigger="click" size="small" @command="handleCommand">
+                    <el-tooltip class="item" effect="dark" content="指派给" placement="top-start" transition="el-zoom-in-bottom" :open-delay=800>
+                      <el-button type="warning" icon="el-icon-thumb" circle size="mini"></el-button>
+                    </el-tooltip>
+                    <el-dropdown-menu slot="dropdown" class="dropdown-menu">
+                      <el-dropdown-item v-for="(item,index) in scope.row.assignToArr" :key="index" :command=[item.userID,scope.row]>{{item.userName}}</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                  <!-- 已解决 -->
+                  <el-tooltip class="item" effect="dark" content="标记已解决" placement="top-start" transition="el-zoom-in-bottom" :open-delay=800>
+                    <el-button type="success" icon="el-icon-check" circle size="mini" :disabled="scope.row.status.id == 3" :loading="resolvedLoading" @click="update(scope.row,3)"></el-button>
+                  </el-tooltip>
+                  
+                </div>
+              </transition>
+              
             </div>
             <!-- issue描述 -->
             <div class="issue-description" v-if="scope.row.description && scope.row.description.length > 0">
@@ -100,9 +146,17 @@
       </el-table-column>
     </el-table>
     <div v-else class="options-content">
-      <options @getSettings='getSettings'></options>
+      <options @getSettings='getSettings' :isComponent="true"></options>
     </div>
-    
+    <div class="page-content" v-if="!hidePage">
+      <el-pagination
+        :hide-on-single-page="hidePage"
+        :total="total"
+        :page-size="pageLimit"
+        layout="prev, pager, next"
+        @current-change="pageChange">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -118,7 +172,13 @@ export default {
       tableData: [],
       loading: true,
       usersInfo: {},
-      resolvedLoading:false
+      resolvedLoading:false,
+      hidePage:true,
+      pageLimit:25,
+      total:0,
+      assigned_to_id: '',
+      status_id: '',
+      tracker_id: ''
     };
   },
   components: {
@@ -126,36 +186,71 @@ export default {
   },
   mounted() {
     this.getSettings()
+    var that = this
+    chrome.extension.onMessage.addListener(
+      function(request, sender, sendResponse) {
+        if (request.msg && request.msg == 'reloadConfig'){
+          that.getSettings()
+        }
+      }
+    );
   },
   methods: {
     getSettings(){
-      chrome.storage.sync.get({ redmineUrl: "", accessKey: "" }, (items) => {
+      this.status_id = ''
+      this.assigned_to_id = ''
+      this.tracker_id = ''
+      var that = this
+      chrome.storage.sync.get({ redmineUrl: "", accessKey: "", issue_statuses: null, trackers: null, assign_to: '' }, (items) => {
         if (items.redmineUrl && items.accessKey) {
           this.redmineUrl = items.redmineUrl;
           this.accessKey = items.accessKey;
-          
+          if (items.assign_to != '') {
+            this.assigned_to_id = '&assigned_to_id=' + items.assign_to
+          }
+          if (items.issue_statuses) {
+            JSON.parse(items.issue_statuses).forEach(function (item, index) {
+              if (item.checked) {
+                that.status_id += item.id + '|'
+              }
+            })
+            this.status_id = this.status_id != '' ? '&status_id=' + this.status_id : this.status_id
+          }
+          if (items.trackers) {
+            JSON.parse(items.trackers).forEach(function (item, index) {
+              if (item.checked) {
+                that.tracker_id += item.id + '|'
+              }
+            })
+            this.tracker_id = this.tracker_id != '' ? '&tracker_id=' + this.tracker_id : this.tracker_id
+          }
           this.getIssues();
         } else {
           console.log("请配置RedmineUrl和accessKey");
         }
       });
     },
-    getIssues() {
+    getIssues(page) {
       this.$api({
           method: 'get',
-          url: this.redmineUrl + '/issues.json',
+          url: this.redmineUrl + '/issues.json?key=' + this.accessKey + this.assigned_to_id + this.status_id + this.tracker_id,
           params: {
-            key: this.accessKey,
-            assigned_to_id: 'me',
-            status_id: '1'
+            page: page ? page : 0,
           }
         }).then(res => {
           this.loading = false
+          //添加默认值,以便Vue可以监听属性变化
           this.tableData = res.data.issues.map(item => {
             item.attachments = []
+            item.couldClose = false//是否有权限关闭
+            item.notNeedFix = false//是否有权限不需要解决
+            item.assignToArr = []//可指派到的用户
+            item.showEdit = false
             return item
           })
-          window.chrome.browserAction.setBadgeText({text: this.tableData.length ? this.tableData.length + '' : ''});
+          this.total = res.data.total_count
+          this.hidePage = res.data.total_count < this.pageLimit
+          window.chrome.browserAction.setBadgeText({text: res.data.total_count ? res.data.total_count + '' : ''});
           window.chrome.browserAction.setBadgeBackgroundColor({color: [102, 205, 170, 255]});          
         }).catch(err => {
           this.loading = false
@@ -198,6 +293,8 @@ export default {
         }).catch(err => {
           console.log(err)
       })
+      //获取编辑页面
+      this.getIssueEdit(row)
     },
     getStatusName(statusId){
       switch(statusId){
@@ -217,13 +314,54 @@ export default {
     },
     getUsers(journals){
       journals.map(item => {
-        if (item.details[0].name == 'assigned_to_id'){
+        if (item.details[0] && item.details[0].name == 'assigned_to_id'){
           let userIdOld = item.details[0].old_value
           let userIdNew = item.details[0].new_value
           this.getUserInfo(userIdOld)
           this.getUserInfo(userIdNew)
         }
         return item
+      })
+    },
+    // 获取编辑页面
+    getIssueEdit(row){
+      this.$api({
+        method:'get',
+        url: this.redmineUrl + '/issues/' + row.id + '/edit',
+        params: {
+          key: this.accessKey
+        }
+      }).then(res => {
+        // 遍历option 如果存在'已关闭'且value为5的话,显示关闭按钮
+        var el = document.createElement( 'html' );
+        el.innerHTML = res.data
+        el.getElementsByTagName('select').forEach(function(item,index){
+          // 状态
+          if (item.name == 'issue[status_id]'){
+            item.getElementsByTagName('option').forEach(function(option,index){
+              if (option.innerHTML == '已关闭'){
+                row.couldClose = true
+              }else if (option.innerHTML == '不需要解决'){
+                row.notNeedFix = true
+              }
+            })
+          }
+          // 指派给
+          else if (item.name == 'issue[assigned_to_id]'){
+            row.assignToArr = []
+            item.getElementsByTagName('option').forEach(function(option,index){
+              if (option.innerHTML.indexOf('&') == -1){
+                row.assignToArr.push({
+                  userName:option.innerHTML,
+                  userID:option.value
+                })
+              }
+            })
+          }
+        })
+        row.showEdit = true
+      }).catch(err => {
+        row.showEdit = true
       })
     },
     // 获取用户资料
@@ -243,16 +381,21 @@ export default {
           console.log(err)
       })
     },
+    //点击"指派给"下拉菜单选项
+    handleCommand(values){
+      let userID = values[0]
+      let row = values[1]
+      this.update(row,row.status.id,userID)
+    },
     rightClick(row, column, event){
       event.preventDefault()
-      console.log(row)
     },
     // 进入redmine编辑页面
     toEdit(issueId){
       chrome.tabs.create({url: this.redmineUrl + '/issues/' + issueId});
     },
-    // 标记为已解决
-    markAsResolved(row){
+    // 更新issue row:所在行的数据 status_id:状态 assigned_to_id:指派给
+    update(row,status_id,assigned_to_id){
       this.resolvedLoading = true
       this.$api({
         method: 'put',
@@ -265,25 +408,27 @@ export default {
         },
         data: JSON.stringify({
           "issue": {
-            "status_id": 3
+            "status_id": status_id,
+            "assigned_to_id": assigned_to_id ? assigned_to_id : row.assigned_to.id
           }
         })
       }).then(res => {
         this.resolvedLoading = false
         this.$message({
-          message: '已标记解决',
+          message: status_id == 3 ? '已标记解决' : '已关闭',
           type: 'success'
         });
-        row.status = {
-          id : 3,
-          name : '已解决'
-        }
         this.getIssues()
         
       }).catch(err => {
         this.resolvedLoading = false
         this.$message.error(err);
     })
+    },
+    // 切换分页
+    pageChange(page){
+      this.getIssues(page)
+      window.scrollTo(0,0);
     }
   }
 };
@@ -334,7 +479,19 @@ export default {
     .operation-buttons{
       margin-right: 10px;
       position: absolute;
-      right: 0
+      right: 0;
+      .dropdown{
+        margin: 0 10px;
+      }
+    }
+    .author{
+      margin-left: 10px;
+      .info-value{
+        margin-left: 0;
+        color: gray;
+        font-size: 10px;
+        font-weight: normal;
+      }
     }
   }
   .issue-info{
@@ -366,6 +523,12 @@ export default {
     div,span{
       font-size: 12px;
     }
+  }
+  .page-content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
   }
 }
 </style>
