@@ -56,6 +56,11 @@
                 <i class="el-icon-s-custom"></i>
                 <span class="info-value">{{scope.row.author.name}}</span>
               </div>
+              <!-- 指派给 -->
+              <div class="author">
+                <i class="el-icon-thumb"></i>
+                <span class="info-value">{{scope.row.assigned_to.name}}</span>
+              </div>
               <!-- 淡入淡出动画 -->
               <transition name="el-fade-in-linear"> 
                 <div class="operation-buttons" v-if="scope.row.showEdit">
