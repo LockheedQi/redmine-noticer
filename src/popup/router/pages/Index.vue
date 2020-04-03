@@ -201,7 +201,7 @@ export default {
       this.assigned_to_id = ''
       this.tracker_id = ''
       var that = this
-      chrome.storage.sync.get({ redmineUrl: "", accessKey: "", issue_statuses: null, trackers: null, assign_to: 'me' }, (items) => {
+      chrome.storage.sync.get({ redmineUrl: "", accessKey: "", issue_statuses: null, trackers: null, assign_to: '' }, (items) => {
         if (items.redmineUrl && items.accessKey) {
           this.redmineUrl = items.redmineUrl;
           this.accessKey = items.accessKey;

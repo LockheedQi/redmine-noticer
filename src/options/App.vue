@@ -127,6 +127,7 @@ export default {
       chrome.storage.sync.set(
         { redmineUrl: this.redmineUrl, accessKey: this.accessKey },
         () => {
+          this.getSettings()
           // 保存成功
           this.showSettings = true;
         }
@@ -205,22 +206,28 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    getSettings(){
+      // 获取配置信息
+      chrome.storage.sync.get({ redmineUrl: "", accessKey: "", openNotice: true, issue_statuses: null, trackers: null, assign_to: 'me', interval: 1}, items => {
+        if (items.redmineUrl && items.accessKey) {
+          this.redmineUrl = items.redmineUrl;
+          this.accessKey = items.accessKey;
+          this.openNotice = items.openNotice;
+          this.assign_to = items.assign_to;
+          this.interval = items.interval;
+          this.getStatuses(items.issue_statuses ? JSON.parse(items.issue_statuses) : null);
+          this.getTrackers(items.trackers ? JSON.parse(items.trackers) : null);
+        }else{
+          this.showSettings = false
+        }
+      });
     }
   },
   mounted() {
-    // 获取配置信息
-    chrome.storage.sync.get({ redmineUrl: "", accessKey: "", openNotice: true, issue_statuses: null, trackers: null, assign_to: 'me', interval: 1}, items => {
-      if (items.redmineUrl && items.accessKey) {
-        this.redmineUrl = items.redmineUrl;
-        this.accessKey = items.accessKey;
-        this.openNotice = items.openNotice;
-        this.assign_to = items.assign_to;
-        this.interval = items.interval;
-        this.getStatuses(items.issue_statuses ? JSON.parse(items.issue_statuses) : null);
-        this.getTrackers(items.trackers ? JSON.parse(items.trackers) : null);
-      }
-    });
-  }
+    this.getSettings()
+  },
+  
 };
 </script>
 
