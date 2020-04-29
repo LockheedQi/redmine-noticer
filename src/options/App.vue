@@ -5,10 +5,18 @@
       <div class="url flex-center">
         <div class="title">Redmine URL</div>
         <el-input placeholder="请输入Redmine地址" v-model="redmineUrl" clearable></el-input>
+        <el-tooltip class="item" effect="dark" placement="top-start" transition="el-zoom-in-bottom" :open-delay=300>
+          <div slot="content">您的Redmine访问地址或域名<br/>如http://192.168.0.162</div>
+          <span class="el-icon-info url-info"></span>
+        </el-tooltip>
       </div>
       <div class="url flex-center">
         <div class="title">API Key</div>
         <el-input placeholder="请输入API access key" v-model="accessKey"></el-input>
+        <el-tooltip class="item" effect="dark" placement="top-start" transition="el-zoom-in-bottom" :open-delay=300>
+          <div slot="content">1.登录您的Redmine 原始Web页面<br>2.点击右上角'我的账号'<br>3.在页面右侧找到'API访问键'<br>4.点击'显示'即可查看您的API Key</div>
+          <span class="el-icon-info url-info"></span>
+        </el-tooltip>
       </div>
       <el-button class="next-step" type="primary" @click="next">下一步</el-button>
     </div>
@@ -237,7 +245,7 @@ export default {
   height: 500px;
 
   .login-content {
-    width: 510px;
+    width: 520px;
     height: 290px;
     margin: 0 auto;
     border-radius: 10px;
@@ -270,6 +278,15 @@ export default {
         margin-left: 10px;
         width: 340px;
         // border: 1px solid rgba(220, 223, 230, 1);
+      }
+      .url-info{
+        width: 15px;
+        font-size: 15px;
+        margin-left: 10px;
+        color: #bebebe;
+        &:hover{
+          color: #5cb6ff;
+        }
       }
     }
     .next-step {
