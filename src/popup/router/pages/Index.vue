@@ -164,7 +164,7 @@
 import { log } from "util";
 import moment from "moment";
 import options from '../../../options/App'
-moment.lang('zh_CN')
+moment.locale('zh_CN')
 
 export default {
   data() {
