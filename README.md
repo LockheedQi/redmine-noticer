@@ -1,4 +1,7 @@
 # Redmine Noticer
+![-w600](http://qxh.caodebo.com/rn-screen1.png)
+![-w600](http://qxh.caodebo.com/rn-screen2.png)
+![-w600](http://qxh.caodebo.com/rn-screen3.png)
 ## 简介
 redmine-noticer是一款面向研发&测试的Chrome扩展程序,旨在及时通知开发人员最新的issue,帮助那些需要频繁修改Redmine中issue状态的用户一键标记解决/关闭/指派当前issue,简化操作流程.
 
