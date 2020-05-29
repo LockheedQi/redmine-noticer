@@ -306,6 +306,8 @@ export default {
     display: block;
     margin: 20px auto;
     animation: turn 5s linear infinite;
+    width: 35px;
+    height: 35px;
   }
   @keyframes turn {
     0% {
