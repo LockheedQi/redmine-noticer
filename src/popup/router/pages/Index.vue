@@ -416,8 +416,22 @@ export default {
         })
       }).then(res => {
         this.resolvedLoading = false
+        let msg = ''
+        switch (status_id) {
+          case 3:
+            msg = '已标记解决'
+            break;
+          case 5:
+            msg = '已关闭'
+            break;
+          case 6:
+            msg = '不需要解决'
+            break;
+          default:
+            break;
+        }
         this.$message({
-          message: status_id == 3 ? '已标记解决' : '已关闭',
+          message: msg,
           type: 'success'
         });
         this.getIssues()
