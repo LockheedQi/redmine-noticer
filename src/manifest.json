@@ -1,7 +1,7 @@
 {
   "name": "Redmine Noticer",
   "description": "This extension notice you the new message of redmine.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 2,
   "icons": {
     "48": "icons/logo.png",
