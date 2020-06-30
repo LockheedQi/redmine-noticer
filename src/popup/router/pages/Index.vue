@@ -164,6 +164,8 @@
 import { log } from "util";
 import moment from "moment";
 import options from '../../../options/App'
+moment.locale('zh_CN')
+
 export default {
   data() {
     return {
@@ -266,7 +268,7 @@ export default {
       return this.dateFormatter(cellValue)
     },
     dateFormatter(val){
-      return moment(val).format("YYYY-MM-DD HH:mm:ss");
+      return moment(new Date(val)).fromNow();
     },
     selectRow(row, column, event){
       this.$refs.issuesTable.toggleRowExpansion(row);
@@ -414,8 +416,22 @@ export default {
         })
       }).then(res => {
         this.resolvedLoading = false
+        let msg = ''
+        switch (status_id) {
+          case 3:
+            msg = '已标记解决'
+            break;
+          case 5:
+            msg = '已关闭'
+            break;
+          case 6:
+            msg = '不需要解决'
+            break;
+          default:
+            break;
+        }
         this.$message({
-          message: status_id == 3 ? '已标记解决' : '已关闭',
+          message: msg,
           type: 'success'
         });
         this.getIssues()
