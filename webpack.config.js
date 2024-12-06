@@ -83,16 +83,22 @@ const config = {
         transform: (content) => {
           const jsonContent = JSON.parse(content);
           jsonContent.version = version;
-
-          if (config.mode === 'development') {
-            jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
-          }
-
+        
+          // // 根据环境设置 content_security_policy
+          // jsonContent['content_security_policy'] = config.mode === 'development'
+          //   ? {
+          //     "extension_pages": "script-src 'self'; object-src 'self';"
+          //   }
+          //   : {
+          //     "extension_pages": "script-src 'self'; object-src 'self';"
+          //   }; // 确保生产环境也安全
+        
           return JSON.stringify(jsonContent, null, 2);
         },
       },
     ]),
   ],
+  devtool: 'cheap-module-source-map',
 };
 
 if (config.mode === 'production') {

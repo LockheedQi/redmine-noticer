@@ -1,5 +1,4 @@
-global.browser = require('webextension-polyfill')
-import store from './store'
+// import store from './store'
 
 // alert(`Hello ${store.getters.foo}!`)
 /*
@@ -17,7 +16,17 @@ var assign_to = 'me'
 var interval = 1 
 var timer = null
 
-window.reloadConfig = function () {
+// 在文件顶部添加消息监听器
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'reloadConfig') {
+    reloadConfig();
+    sendResponse({ status: 'success' });
+  }
+  return true; // 保持消息通道开启
+});
+
+// 将 reloadConfig 改为内部函数
+function reloadConfig() {
   clearInterval(timer)
   getConfig()
 }
@@ -86,8 +95,8 @@ function getIssues() {
       chrome.storage.local.get({ noticeDic: {} }, (items) => {
 
         // 更新角标
-        window.chrome.browserAction.setBadgeText({text: result.total_count ? result.total_count + '' : ''});
-        window.chrome.browserAction.setBadgeBackgroundColor({color: [102, 205, 170, 255]});
+        chrome.action.setBadgeText({text: result.total_count ? result.total_count + '' : ''});
+        chrome.action.setBadgeBackgroundColor({color: [102, 205, 170, 255]});
         noticedIssuesDic = items.noticeDic
         var newNoticedDic = {}
         for (var i = 0; i < result.issues.length; i++){
